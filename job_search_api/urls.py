@@ -6,4 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/jobs/', JobListView.as_view(), name='job-list'),
     path('api/jobs/<int:pk>/', JobDetailsView.as_view(), name='job-details'),
+    path('jobs/<int:pk>/', JobDetailView.as_view(), name='job-detail-view'),
+    path('job-details/<int:pk>/', JobDetailsView.as_view(), name='job-detail'),
 ]

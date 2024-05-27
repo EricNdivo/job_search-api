@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView
 from .models import Job
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .serializers import JobSerializer
@@ -41,3 +41,15 @@ class JobDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = JobSerializer(job)
         return Response(serializer.data)       
+
+class JobCreateView(CreateAPIView):
+    queryset = Job.objects.all
+    serializer_class = JobSerializer
+
+class JobUpdateView(UpdateAPIView):
+    queryset = Job.objects.all
+    serializer_class = JobSerializer
+
+class JobDeleteView(DestroyAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer

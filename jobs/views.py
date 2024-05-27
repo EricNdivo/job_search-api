@@ -120,3 +120,35 @@ class UserLoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=status.HTTP_200)
         return Response({'error':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+class JobRecommendationView(APIView):
+    def get(self, request):
+        user = request.user
+        recommended_jobs = self.get_recommended_jobs_for_user(user)
+        serializer = JobSerializer(recommeded_jobs, many=True)
+        return Response(serializer.data)
+
+    def get_recommended_jobs_for_user(self, user):
+        return Job.objects.all()
+
+class JobSearchView(ListAPIView):
+    serializer_class = JobSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['title', 'description', 'company']
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q',None)
+        if query:
+            return Job.objects.filter(title_icontains=query)
+        return Job.objects.all()
+
+class JobAnalyticsView(APIView):
+    def get(self, request):
+        total_jobs = Job.objects.count()
+        total_applications = JobApplication.objects.count()
+        data = {
+            'total_jobs': total_jobs,
+            'total_applications': total_applications
+        }
+        return Response(data)
+

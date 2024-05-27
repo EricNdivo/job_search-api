@@ -1,7 +1,23 @@
 from django.contrib import admin
 from django.urls import path, include
-from jobs.views import JobListView, JobDetailsView, JobDetailView, JobCreateView, JobUpdateView, JobDeleteView, JobApplicationCreateView, JobApplicationListView, UserRegistrationView, UserLoginView
 from rest_framework.authtoken.views import obtain_auth_token
+from jobs.views import (
+    JobListView,
+    JobDetailView,
+    JobDetailsView,
+    JobCreateView,
+    JobUpdateView,
+    JobDeleteView,
+    JobListByLocationView,
+    JobApplicationCreateView,
+    JobApplicationListView,
+    JobRecommendationView,
+    JobSearchView,
+    JobAnalyticsView,
+    UserRegistrationView,
+    UserLoginView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
@@ -16,6 +32,13 @@ urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='user-register'),
     path('login/',UserLoginView.as_view(), name='user-login'),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    path('jobs/location', JobListByLocationView.as_view(),name='job-list-by-location'),
+    path('jobs/apply/', JobApplicationCreateView.as_view(), name='job-apply'),
+    path('jobs/search/',JobSearchView.as_view(), name='job-search'),
+    path('jobs/recommendations/', JobRecommendationView.as_view(), name='job-recommendations'),
+    path('jobs/analytics/', JobAnalyticsView.as_view(),name='job-analytics'),
+
+
 
 
 ]

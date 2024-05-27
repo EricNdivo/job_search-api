@@ -142,13 +142,23 @@ class JobSearchView(ListAPIView):
             return Job.objects.filter(title_icontains=query)
         return Job.objects.all()
 
+
 class JobAnalyticsView(APIView):
     def get(self, request):
         total_jobs = Job.objects.count()
         total_applications = JobApplication.objects.count()
+        
+        jobs_per_company = Job.objects.values('company').annotate(count=Count('company'))
+        jobs_per_location = Job.objects.values('location').annotate(count=Count('location'))
+        applications_per_job = JobApplication.objects.values('job').annotate(count=Count('job'))
+        applications_per_user = JobApplication.objects.values('user').annotate(count=Count('user'))
+        
         data = {
             'total_jobs': total_jobs,
-            'total_applications': total_applications
+            'total_applications': total_applications,
+            'jobs_per_company': list(jobs_per_company),
+            'jobs_per_location': list(jobs_per_location),
+            'applications_per_job': list(applications_per_job),
+            'applications_per_user': list(applications_per_user)
         }
-        return Response(data)
-
+        return Response(data, status=status.HTTP_200_OK)

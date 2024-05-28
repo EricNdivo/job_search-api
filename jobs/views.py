@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView
 from .models import Job
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .serializers import JobSerializer, JobApplicationSerializer, UserSerializer, JobApplication
 from .utils import fetch_github_jobs, fetch_indeed_jobs, fetch_linkedin_jobs
@@ -10,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import serializers, generics
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 class JobListView(APIView):
     def get(self, request):
         try:
@@ -45,12 +48,15 @@ class JobDetailView(APIView):
         serializer = JobSerializer(job)
         return Response(serializer.data)       
 
-class JobCreateView(CreateAPIView):
-    queryset = Job.objects.all
-    serializer_class = JobSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+class JobCreateView(APIView):
+    permmission_classes = [permissions.IsAuthenticated]
 
+    def post(self, request):
+        serializer = JobSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class JobUpdateView(UpdateAPIView):
     queryset = Job.objects.all
     serializer_class = JobSerializer
@@ -118,7 +124,7 @@ class UserLoginView(APIView):
 
         if user is not None:
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
         return Response({'error':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class JobRecommendationView(APIView):

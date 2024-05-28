@@ -1,12 +1,14 @@
 from rest_framework import serializers
 from .models import Job, JobApplication
 from django.contrib.auth.models import User
-class JobSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    company = serializers.CharField()
-    location = serializers.CharField()
-    description = serializers.CharField()
-    url = serializers.CharField()
+
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Job.objects.create(**validated_data)
 
 class JobApplicationSerializer(serializers.ModelSerializer):
     class Meta:

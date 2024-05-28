@@ -50,16 +50,32 @@ class JobDetailViewTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
-class JobDetailsViewTests(TestCase):
+class JobCreateViewTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.job = Job.objects.create(title='Test Job', description='Test Description', company='Test Company')
-        self.url = reverse('job-detail', args=[self.job.pk])  
-    def test_get_job_detail(self):
-        response = self.client.get(self.url)
+        self.url = reverse('job-create')
+        self.user= User.objects.create_user(username='testuser', password='testpassword')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], self.job.title)
-        self.assertEqual(response.data['description'], self.job.description)
-        self.assertEqual(response.data['company'], self.job.company)
+    def test_create_job_authenticated(self):
+        self.client.login(username='testuser', password='testpassword')
+        data = {
+            'title': 'New Job',
+            'description': 'New job description',
+            'company':'New Company'
+        }
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], 'New Job')
+        self.assertEqual(response.data['description'], 'New job description')
+        self.assertEqual(response.data['company'], 'New Company')
+
+    def test_create_job_unauthenticated(self):
+        data = {
+            'title': 'New Job',
+            'description': 'New job description',
+            'company': 'New Company'
+        }
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

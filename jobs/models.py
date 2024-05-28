@@ -6,6 +6,7 @@ class Job(models.Model):
     description = models.TextField()
     company = models.CharField(max_length=255)
     created_at = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

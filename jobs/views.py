@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView
 from .models import Job
+from django.db.models import Count
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -131,7 +132,7 @@ class JobRecommendationView(APIView):
     def get(self, request):
         user = request.user
         recommended_jobs = self.get_recommended_jobs_for_user(user)
-        serializer = JobSerializer(recommeded_jobs, many=True)
+        serializer = JobSerializer(recommended_jobs, many=True)
         return Response(serializer.data)
 
     def get_recommended_jobs_for_user(self, user):

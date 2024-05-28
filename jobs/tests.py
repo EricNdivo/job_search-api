@@ -115,4 +115,9 @@ class LoginViewTests(TestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertIn('error', response.data)
 
-
+class JobRecommendationsView(APIView):
+    def get(self, request):
+        user = request.user
+        recommended_jobs = Job.objects.filter(location=user.profile.location, title__icontains=user.profile.job_interest)
+        serializer = JobSerializer(recommended_jobs, many=True)
+        return Response(serializer.data)

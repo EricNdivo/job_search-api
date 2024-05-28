@@ -79,3 +79,40 @@ class JobCreateViewTests(TestCase):
         response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class JobAnalyticsViewTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('job-analytics')
+
+        self.job1 = Job.objects.create(title='Job1', description='description1', company='company1')
+        self.job2 = Job.objects.create(title='Job2', description='description2', company='company2')
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.application1 = JobApplication.objects.create(job=self.job1, user=self.user)
+        self.application2 =JobApplication.objects.create(job=self.job2, user=self.user)
+
+        def test_get_job_analytics(self):
+            response = self.client.get(self.url)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['total_jobs'], 2)
+            self.assertEqual(response.data['total_applictions'], 2)
+
+
+class LoginViewTests(TestCase):
+    def setUp(self):
+        self.client = APICLient()
+        self.url = reverse('login')
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+        def test_login(self):
+            data = {
+                'username': 'testuser',
+                'password': 'testpassword'
+            }
+            response = self.client.post(self.url, data, format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('error', response.data)
+
+

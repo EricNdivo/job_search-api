@@ -1,5 +1,5 @@
 import requests
-
+from bs4 import BeautifulSoup
 def fetch_github_jobs():
     url = "https://jobs.github.com/positions.json?description=developer"
     response = requests.get(url)
@@ -32,3 +32,16 @@ def fetch_indeed_jobs():
 
 def fetch_linkedin_jobs():
     return[]
+
+def fetch_ebay_jobs():
+    api_url = 'https://api.ebay.com/jobs/v1/country/US'
+    headers = {
+        'Authorization': '#',
+        'Accept': 'application/json'
+    }
+    response = requests.get(api_url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Error fetching eBay jobs:", response.text)
+

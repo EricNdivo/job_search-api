@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+from django.core.mail import send_mail
+from django.conf import settings
 def fetch_github_jobs():
     url = "https://jobs.github.com/positions.json?description=developer"
     response = requests.get(url)
@@ -45,3 +47,40 @@ def fetch_ebay_jobs():
     else:
         print("Error fetching eBay jobs:", response.text)
 
+def scrape_jobs_from_website():
+    url = 'https://www.indeed.com/q-python-developer-jobs.html'
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        job_listings = soup.find_all('div', class_='jobsearch-SerpJobCard')
+        return job_listings
+    else:
+        print("Error fetching website:", response.text)
+        return[]
+
+def store_jobs_in_db(jobs):
+    from .models import Job
+    new_jobs = []
+    for job_data in jobs:
+        job, created = Job.objects.get_or_create(
+            title=job_data['title'],
+            description=job_data['description'],
+            company=job_data['company'],
+        )
+        if created:
+            new_jobs.append(job)
+    return new_jobs
+
+def send_new_jobs_email(user, jobs):
+    subject = 'New Freelance Jobs Available'
+    messge = f'Hello {user.username},\n\nNew freelnce jobs have been posted:\n'
+    for job in jobs:
+        message += f"-{job.title} at {job.company} in {job.location}\n"
+    message += '\nBest regards, \nYour Job Portal Team'
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silenty=False,
+    )    
